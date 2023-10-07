@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Medidas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Agrega la biblioteca html2canvas desde un CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial Black', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url('https://fondosmil.com/fondo/23417.jpg');
+            background-size: cover;
+            background-repeat: repeat-y;
+            background-attachment: fixed;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            box-shadow: 0px 10px 30px 0px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-family: 'Arial Black', sans-serif;
+            width: 90%;
+            max-width: 400px;
+            padding: 10px;
+            margin: 20px auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 1px;
+            text-align: center;
+            opacity: 0.8;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            border: none;
+            text-align: center;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 14px;
+            padding: 1px;
+        }
+        button {
+            width: 90%;
+            padding: 7px;
+            display: block;
+            background-color: #FFD700;
+            color: black;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        button:hover {
+            border: 2px solid transparent;
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        .pies-cell {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .camera-button {
+            display: inline-block;
+            background-color: red;
+            border-radius: 50%;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .camera-button img {
+            width: 30px;
+            height: 30px;
+        }
+        .camera-button:hover {
+            background-color: darkred;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+            }
+            th, td {
+                padding: 1px;
+            }
+            input[type="text"], input[type="number"] {
+                font-size: 12px;
+            }
+            button {
+                padding: 6px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table>
+            <tr>
+                <th>MEDIDAS</th>
+                <th>TABLAS</th>
+                <th>PAQS</th>
+            </tr>
+            <tr>
+                <td><input type="text" id="medidas" inputmode="decimal" placeholder="##.##.####"></td>
+                <td><input type="number" id="tablas" step="1" placeholder="##"></td>
+                <td><input type="number" id="paquetes" step="1" placeholder="##"></td>
+            </tr>
+        </table>
+    </div>
+    <button onclick="calcular()">CALCULAR</button>
+
+    <!-- Botón de captura de pantalla con imagen de cámara sin nombre -->
+    <a href="#" class="camera-button" onclick="capturarPantalla()"><img src="https://img.icons8.com/?size=200&id=11772&format=png&color=FFFFFF" alt="Cámara"></a>
+
+    <!-- Tabla de REGISTRO -->
+    <div class="container hidden" id="REGISTRO">
+        <h2>REGISTRO</h2>
+        <table>
+            <tr>
+                <th>MEDIDA</th>
+                <th>TABLAS</th>
+                <th>PAQS</th>
+                <th>TOTAL</th>
+                <th class="pies-cell">PIES</th>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Fila para el total de pies -->
+    <div class="container hidden" id="totalPies">
+        <h2>TOTAL P2"</h2>
+        <table>
+            <tr>
+                <th>TOTAL</th>
+            </tr>
+            <tr>
+                <td id="totalPiesValue">0.00</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        function calcular() {
+            var medidas = document.getElementById('medidas').value.split('.');
+            var tablas = document.getElementById('tablas').value;
+            var paquetes = document.getElementById('paquetes').value;
+
+            if (medidas.length !== 3 || isNaN(tablas) || isNaN(paquetes)) {
+                alert('POR FAVOR, INTRODUCE LOS VALORES CORRECTAMENTE.');
+                return;
+            }
+
+            var totalTablas = tablas * paquetes;
+
+            var resultadoPies = ((medidas[0] * medidas[1] * medidas[2]) / 2360 * totalTablas) / 1000;
+
+            var registroTable = document.querySelector('#REGISTRO table');
+            var newRow = registroTable.insertRow(1);
+            newRow.insertCell(0).textContent = document.getElementById('medidas').value;
+            newRow.insertCell(1).textContent = tablas;
+            newRow.insertCell(2).textContent = paquetes;
+            newRow.insertCell(3).textContent = totalTablas;
+
+            var piesCell = document.createElement('td');
+            piesCell.className = "pies-cell";
+            newRow.appendChild(piesCell);
+            piesCell.textContent = resultadoPies.toFixed(2);
+
+            var totalPiesValue = parseFloat(document.getElementById('totalPiesValue').textContent) + resultadoPies;
+            document.getElementById('totalPiesValue').innerText = totalPiesValue.toFixed(2);
+
+            document.getElementById('REGISTRO').classList.remove('hidden');
+            document.getElementById('totalPies').classList.remove('hidden');
+
+            // Vaciar las celdas de entrada de datos
+            document.getElementById('medidas').value = '';
+            document.getElementById('tablas').value = '';
+            document.getElementById('paquetes').value = '';
+
+            // Elimina la tabla de "RESULTADO" y los encabezados
+            var resultadoTable = document.getElementById('result');
+            resultadoTable.innerHTML = '';
+        }
+
+        function capturarPantalla() {
+            // Captura el contenido de la página usando html2canvas
+            html2canvas(document.body).then(function(canvas) {
+                // Convierte el lienzo a una imagen en formato JPG
+                var imgData = canvas.toDataURL('image/jpeg');
+                
+                // Crea un enlace para descargar la imagen
+                var a = document.createElement('a');
+                a.href = imgData;
+                a.download = 'captura_pantalla.jpg';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                
+                // Simula un clic en el enlace para iniciar la descarga
+                a.click();
+                
+                // Limpia el enlace después de la descarga
+                document.body.removeChild(a);
+            });
+        }
+    </script>
+</body>
+</html>
